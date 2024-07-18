@@ -1,0 +1,4 @@
+[submodule "python-feedstock"]
+	path = python-feedstock
+	url = git@github.com:AnacondaRecipes/python-feedstock.git
+	branch = py313
