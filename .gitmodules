@@ -23,3 +23,6 @@
 [submodule "python-installer-feedstock"]
 	path = python-installer-feedstock
 	url = git@github.com:AnacondaRecipes/python-installer-feedstock.git
+[submodule "meson-feedstock"]
+	path = meson-feedstock
+	url = git@github.com:AnacondaRecipes/meson-feedstock.git
