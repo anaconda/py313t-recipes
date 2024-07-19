@@ -5,3 +5,18 @@
 [submodule "python_abi-feedstock"]
 	path = python_abi-feedstock
 	url = git@github.com:AnacondaRecipes/python_abi-feedstock.git
+[submodule "wheel-feedstock"]
+	path = wheel-feedstock
+	url = git@github.com:AnacondaRecipes/wheel-feedstock.git
+[submodule "pip-feedstock"]
+	path = pip-feedstock
+	url = git@github.com:AnacondaRecipes/pip-feedstock.git
+[submodule "setuptools-feedstock"]
+	path = setuptools-feedstock
+	url = git@github.com:AnacondaRecipes/setuptools-feedstock.git
+[submodule "flit-feedstock"]
+	path = flit-feedstock
+	url = git@github.com:AnacondaRecipes/flit-feedstock.git
+[submodule "python-build-feedstock"]
+	path = python-build-feedstock
+	url = git@github.com:AnacondaRecipes/python-build-feedstock.git
