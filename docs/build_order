@@ -1,0 +1,14 @@
+##Build order for core packages
+
+python
+-----------
+python_abi
+-----------
+pip (bootstrap = yes)
+-----------
+setuptools
+flit-core (set bootstrap: yes)
+------------
+python-installer
+---------
+wheel
