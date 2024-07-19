@@ -20,3 +20,6 @@
 [submodule "python-build-feedstock"]
 	path = python-build-feedstock
 	url = git@github.com:AnacondaRecipes/python-build-feedstock.git
+[submodule "python-installer-feedstock"]
+	path = python-installer-feedstock
+	url = git@github.com:AnacondaRecipes/python-installer-feedstock.git
