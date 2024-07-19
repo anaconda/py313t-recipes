@@ -2,3 +2,6 @@
 	path = python-feedstock
 	url = git@github.com:AnacondaRecipes/python-feedstock.git
 	branch = py313
+[submodule "python_abi-feedstock"]
+	path = python_abi-feedstock
+	url = git@github.com:AnacondaRecipes/python_abi-feedstock.git
