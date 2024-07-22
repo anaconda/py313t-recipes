@@ -153,15 +153,6 @@ mpfr:
   - 4
 # we build for an old version of numpy for forward compatibility
 numpy:
-  # python 3.8
-  - 1.21
-  # python 3.9
-  - 1.21
-  # python 3.10
-  - 1.21
-  # python 3.11
-  - 1.23
-  # python 3.12
   - 1.26
 openblas:
   - 0.3.21
@@ -181,11 +172,7 @@ proj:
 libprotobuf:
   - 3.20.3
 python:
-  - 3.8
-  - 3.9
-  - "3.10"
-  - "3.11"
-  - "3.12"
+  - "3.13"
 python_implementation:
   - cpython
 python_impl:
