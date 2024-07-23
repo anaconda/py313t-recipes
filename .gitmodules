@@ -26,3 +26,9 @@
 [submodule "meson-feedstock"]
 	path = meson-feedstock
 	url = git@github.com:AnacondaRecipes/meson-feedstock.git
+[submodule "meson-python-feedstock"]
+	path = meson-python-feedstock
+	url = git@github.com:AnacondaRecipes/meson-python-feedstock.git
+[submodule "pyproject-metadata-feedstock"]
+	path = pyproject-metadata-feedstock
+	url = git@github.com:AnacondaRecipes/pyproject-metadata-feedstock.git

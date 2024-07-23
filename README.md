@@ -7,9 +7,11 @@ The submodules in this repository are all branches of [Anaconda recipes](https:/
 
 - Add `add_pip_as_python_dependency: False` to your `~/.condarc`.
 
+- You will often have to add the `--no-test` option to `conda build` in order to avoid pulling testing dependencies which wouldn't exist yet at this point.
+
 - Either add the `ad-testing/label/py313_nogil` channel to your `.condarc` or always pass it to `conda build`.
   For example, when building `meson`:  
-  `conda build -c ad-testing/label/py313_nogil meson-feedstock`
+  `conda build --no-test -c ad-testing/label/py313_nogil meson-feedstock`
 
 - Always run `conda build` from the top directory in this repository.
   It will pick up the local `conda_build_config.yaml` which contains required configurations.
@@ -30,6 +32,10 @@ The submodules in this repository are all branches of [Anaconda recipes](https:/
 5. `python-installer`
 
 6. `wheel`
+
+7. `pyproject-matadata`
+
+8. `meson-python`
 
 
 [^1]: The current recipe will install files from a wheel file. The package may need to be built again from the source distribution for correctness.
