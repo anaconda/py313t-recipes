@@ -25,11 +25,12 @@ The submodules in this repository are all branches of [Anaconda recipes](https:/
 
 4. These two packages in any order:
    - `setuptools`
-   - `flit`[^1]
+   - `flit`[^2]
 
 5. `python-installer`
 
 6. `wheel`
 
 
-[^1]: The current recipe will only build the bootstrap or core package.
+[^1]: The current recipe will install files from a wheel file. The package may need to be built again from the source distribution for correctness.
+[^2]: The current recipe will only build the `flit-core` package. The recipe will need to be built again without the `bootstrap`` setting to produce the `flit` package.
