@@ -154,6 +154,7 @@ mpfr:
 # we build for an old version of numpy for forward compatibility
 numpy:
   - 1.26
+  - 1.26
 openblas:
   - 0.3.21
 openjpeg:
@@ -173,6 +174,7 @@ libprotobuf:
   - 3.20.3
 python:
   - "3.13"
+  - "3.13 *cp313t"
 python_implementation:
   - cpython
 python_impl:
@@ -204,8 +206,6 @@ zlib:
   - 1.2
 xz:
   - 5
-channel_targets:
-  - defaults
 cdt_name:
   - amzn2    # [linux and aarch64]
 zip_keys:
