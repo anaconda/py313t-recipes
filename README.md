@@ -7,8 +7,6 @@ The submodules in this repository are all branches of [Anaconda recipes](https:/
 
 - Add `add_pip_as_python_dependency: False` to your `~/.condarc`.
 
-- You will often have to add the `--no-test` option to `conda build` in order to avoid pulling testing dependencies which wouldn't exist yet at this point.
-
 - Either add the `ad-testing/label/py313_nogil` channel to your `.condarc` or always pass it to `conda build`.
   For example, when building `meson`:  
   `conda build --no-test -c ad-testing/label/py313_nogil meson-feedstock`
