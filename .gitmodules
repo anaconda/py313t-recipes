@@ -35,3 +35,6 @@
 [submodule "pytest-feedstock"]
 	path = pytest-feedstock
 	url = git@github.com:AnacondaRecipes/pytest-feedstock.git
+[submodule "cython-feedstock"]
+	path = cython-feedstock
+	url = git@github.com:AnacondaRecipes/cython-feedstock.git
