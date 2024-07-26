@@ -32,3 +32,6 @@
 [submodule "pyproject-metadata-feedstock"]
 	path = pyproject-metadata-feedstock
 	url = git@github.com:AnacondaRecipes/pyproject-metadata-feedstock.git
+[submodule "pytest-feedstock"]
+	path = pytest-feedstock
+	url = git@github.com:AnacondaRecipes/pytest-feedstock.git
