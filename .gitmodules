@@ -44,3 +44,6 @@
 [submodule "poetry-core-feedstock"]
 	path = poetry-core-feedstock
 	url = git@github.com:AnacondaRecipes/poetry-core-feedstock.git
+[submodule "pyparsing-feedstock"]
+	path = pyparsing-feedstock
+	url = git@github.com:AnacondaRecipes/pyparsing-feedstock.git
