@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+
+CONDA_CHANNEL="ad-testing/label/py313"
+OUTPUT_DIR="/tmp/py313t-recipes"
+
+message() {
+  echo "${@}" >&2
+  echo "${@}" >>"${OUTPUT_DIR}/build.log"
+}
+
+conda_cmdline() {
+  local PKG ABI PHASE
+  PKG="${1}"
+  ABI="${2}"
+  PHASE="${3}"
+  conda build -c "${CONDA_CHANNEL}" -m "${ABI}.yaml" "--${PHASE}" "${PKG}-feedstock"
+}
+
+build_package() {
+  local PKG ABI LOG_PATH
+  PKG="${1}"
+  ABI="${2}"
+  LOG_PATH="${OUTPUT_DIR}/logs/builds/${PKG}_${ABI}.log"
+  message "Building ${PKG} for ${ABI} ABI..."
+  conda_cmdline "${PKG}" "${ABI}" "no-test" &>"${LOG_PATH}"
+  message "Build log saved at ${LOG_PATH}"
+}
+
+test_package() {
+  local PKG ABI LOG_PATH
+  PKG="${1}"
+  ABI="${2}"
+  LOG_PATH="${OUTPUT_DIR}/logs/tests/${PKG}_${ABI}.log"
+  message "Testing ${PKG} for ${ABI} ABI..."
+  conda_cmdline "${PKG}" "${ABI}" "test" &>"${LOG_PATH}"
+  message "Test log saved at ${LOG_PATH}"
+}
+
+tarball_path() {
+  local PKG ABI
+  PKG="${1}"
+  ABI="${2}"
+  message "Calculating path and name of ${PKG} package tarball for ${ABI} ABI"
+  conda_cmdline "${PKG}" "${ABI}" "output"
+}
+
+# Make sure all required commands are installed
+for COMMAND in "jq --help"; do
+  eval "${COMMAND}" &>/dev/null || echo "Please install the ${COMMAND// */} command"
+done
+
+# Make sure we are at the top of the repo where the script is
+HERE="$(echo $(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd))"
+cd "${HERE}"
+
+PACKAGES="${@}"
+
+for PACKAGE in ${PACKAGES}; do
+  if ! [[ -d "${PACKAGE}-feedstock" ]]; then
+    echo "No feedstock found for package ${PACKAGE}"
+  fi
+done
+echo "Feedstocks found for: ${@}"
+
+# Cleanup and prepare output directory
+rm -rf "${OUTPUT_DIR}"
+mkdir -p "${OUTPUT_DIR}/logs/builds"
+mkdir -p "${OUTPUT_DIR}/logs/tests"
+mkdir -p "${OUTPUT_DIR}/packages/py313"
+mkdir -p "${OUTPUT_DIR}/packages/py313t"
+
+for PACKAGE in ${PACKAGES}; do
+  for ABI in py313 py313t; do
+    message "---"
+    build_package "${PACKAGE}" "${ABI}"
+    TARBALL_PATH="$(tarball_path "${PACKAGE}" "${ABI}")"
+    message "Package tarball is at ${TARBALL_PATH}"
+    message "ABI: $(tar xfO "${TARBALL_PATH}" info/index.json | jq -r .depends | grep '"python_abi ' | cut -d '"' -f 2)"
+    message "Number of files in the tarball's site-packages directory: $(tar tvf "${TARBALL_PATH}" | grep site-packages | wc -l | sed 's/[ \t]//g')"
+    cp "${TARBALL_PATH}" "${OUTPUT_DIR}/packages/${ABI}"
+  done
+done
+
+for PACKAGE in ${PACKAGES}; do
+  for ABI in py313 py313t; do
+    message "---"
+    test_package "${PACKAGE}" "${ABI}"
+    STATUS="${?}"
+    if [[ "${STATUS}" == "0" ]]; then
+      message "PASSED"
+    else
+      message "FAILED"
+    fi
+  done
+done
