@@ -14,6 +14,8 @@ conda_cmdline() {
   ABI="${2}"
   PHASE="${3}"
   conda build -c "${CONDA_CHANNEL}" -m "${ABI}.yaml" "--${PHASE}" "${PKG}-feedstock"
+  STATUS="${?}"
+  return "${STATUS}"
 }
 
 build_package() {
@@ -23,7 +25,9 @@ build_package() {
   LOG_PATH="${OUTPUT_DIR}/logs/builds/${PKG}_${ABI}.log"
   message "Building ${PKG} for ${ABI} ABI..."
   conda_cmdline "${PKG}" "${ABI}" "no-test" &>"${LOG_PATH}"
+  STATUS="${?}"
   message "Build log saved at ${LOG_PATH}"
+  return "${STATUS}"
 }
 
 test_package() {
@@ -33,7 +37,9 @@ test_package() {
   LOG_PATH="${OUTPUT_DIR}/logs/tests/${PKG}_${ABI}.log"
   message "Testing ${PKG} for ${ABI} ABI..."
   conda_cmdline "${PKG}" "${ABI}" "test" &>"${LOG_PATH}"
+  STATUS="${?}"
   message "Test log saved at ${LOG_PATH}"
+  return "${STATUS}"
 }
 
 tarball_path() {
@@ -42,6 +48,8 @@ tarball_path() {
   ABI="${2}"
   message "Calculating path and name of ${PKG} package tarball for ${ABI} ABI"
   conda_cmdline "${PKG}" "${ABI}" "output"
+  STATUS="${?}"
+  return "${STATUS}"
 }
 
 # Make sure all required commands are installed
@@ -53,21 +61,22 @@ done
 HERE="$(echo $(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd))"
 cd "${HERE}"
 
-PACKAGES="${@}"
-
-for PACKAGE in ${PACKAGES}; do
-  if ! [[ -d "${PACKAGE}-feedstock" ]]; then
-    echo "No feedstock found for package ${PACKAGE}"
-  fi
-done
-echo "Feedstocks found for: ${@}"
-
 # Cleanup and prepare output directory
 rm -rf "${OUTPUT_DIR}"
 mkdir -p "${OUTPUT_DIR}/logs/builds"
 mkdir -p "${OUTPUT_DIR}/logs/tests"
 mkdir -p "${OUTPUT_DIR}/packages/py313"
 mkdir -p "${OUTPUT_DIR}/packages/py313t"
+
+PACKAGES="${@}"
+
+# Check all feedstocks are available
+for PACKAGE in ${PACKAGES}; do
+  if ! [[ -d "${PACKAGE}-feedstock" ]]; then
+    echo "No feedstock found for package ${PACKAGE}"
+  fi
+done
+message "Feedstocks found for: ${@}"
 
 for PACKAGE in ${PACKAGES}; do
   for ABI in py313 py313t; do
