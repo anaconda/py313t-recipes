@@ -47,12 +47,14 @@ Build order:
 1. Build these in no specific order:
   - `cython`
   - `meson`
+  - `pretend`
   - `pyparsing`
   - `pytest`
   - `poetry-core` (linux only)
 
 2. Build these in no specific order:
-  - `pyproperty-metadata`
+  - `packaging`
+  - `pyproject-metadata`
   - `pkgconfig` (linux only)
 
 3. `meson-python`
