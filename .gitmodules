@@ -47,3 +47,9 @@
 [submodule "pyparsing-feedstock"]
 	path = pyparsing-feedstock
 	url = git@github.com:AnacondaRecipes/pyparsing-feedstock.git
+[submodule "packaging-feedstock"]
+	path = packaging-feedstock
+	url = git@github.com:AnacondaRecipes/packaging-feedstock.git
+[submodule "pretend-feedstock"]
+	path = pretend-feedstock
+	url = git@github.com:AnacondaRecipes/pretend-feedstock.git
