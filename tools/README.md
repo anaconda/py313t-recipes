@@ -30,3 +30,8 @@ pluggy
 ------------------
 pytest
 ```
+
+# scan-repo.py
+
+The `scan-repo.py` script looks for packages in the `ad-testing` that are
+missing builds for a particular configuration or are missing labels.
