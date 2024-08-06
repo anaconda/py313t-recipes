@@ -1,104 +1,248 @@
-#!/usr/bin/env bash
+#! /usr/bin/env python
 
-CONDA_CHANNEL="ad-testing/label/py313"
-OUTPUT_DIR="/tmp/py313t-recipes"
+import argparse
+import logging
+import os
+import shutil
+import subprocess
+import sys
 
-message() {
-  echo "${@}" >&2
-  echo "${@}" >>"${OUTPUT_DIR}/build.log"
-}
 
-conda_cmdline() {
-  local PKG ABI PHASE
-  PKG="${1}"
-  ABI="${2}"
-  PHASE="${3}"
-  conda build -c "${CONDA_CHANNEL}" -m "${ABI}.yaml" "--${PHASE}" "${PKG}-feedstock"
-  STATUS="${?}"
-  return "${STATUS}"
-}
+CONDA_CHANNEL = "ad-testing/label/py313"
+GIL_VARIANT = "py313.yaml"
+THREADED_VARIANT = "py313t.yaml"
 
-build_package() {
-  local PKG ABI LOG_PATH
-  PKG="${1}"
-  ABI="${2}"
-  LOG_PATH="${OUTPUT_DIR}/logs/builds/${PKG}_${ABI}.log"
-  message "Building ${PKG} for ${ABI} ABI..."
-  conda_cmdline "${PKG}" "${ABI}" "no-test" &>"${LOG_PATH}"
-  STATUS="${?}"
-  message "Build log saved at ${LOG_PATH}"
-  return "${STATUS}"
-}
 
-test_package() {
-  local PKG ABI LOG_PATH
-  PKG="${1}"
-  ABI="${2}"
-  LOG_PATH="${OUTPUT_DIR}/logs/tests/${PKG}_${ABI}.log"
-  message "Testing ${PKG} for ${ABI} ABI..."
-  conda_cmdline "${PKG}" "${ABI}" "test" &>"${LOG_PATH}"
-  STATUS="${?}"
-  message "Test log saved at ${LOG_PATH}"
-  return "${STATUS}"
-}
+def parse_args():
+    argparser = argparse.ArgumentParser(
+        prog="build",
+        description="Multi-ABI (GIL and free-threading} build tool for Conda feedstocks")
+    build_test_group = argparser.add_mutually_exclusive_group()
+    build_test_group.add_argument(
+        "-b",
+        "--build",
+        action="store_true",
+        help = "Only build feedstock(s)")
+    build_test_group.add_argument(
+        "-t",
+        "--test",
+        action="store_true",
+        help = "Only test feedstock(s)")
+    build_test_group.add_argument(
+        "--build-and-test",
+        action="store_true",
+        help = """Build and test each feedstock in a single pass like conda-build would do. When
+            building feedstocks, the default is they will first be all built in the order passed on
+            the command-line, then all tested in the same order. This is done to automaticaly work
+            around some circular dependencies. Use this option to revert to the default conda-build
+            behavior.""")
+    argparser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help = "Show build and test output")
+    # argparser.add_argument(
+    #     "-m",
+    #     "--variant",
+    #     nargs = 1,
+    #     action = "append",
+    #     help = "Add a variant config file (may be passed multiple times)")
+    argparser.add_argument(
+        "feedstocks",
+        nargs = "+",
+        help = "List of feedstocks to build and/or test")
+    return argparser.parse_args()
 
-tarball_path() {
-  local PKG ABI
-  PKG="${1}"
-  ABI="${2}"
-  message "Calculating path and name of ${PKG} package tarball for ${ABI} ABI"
-  conda_cmdline "${PKG}" "${ABI}" "output"
-  STATUS="${?}"
-  return "${STATUS}"
-}
 
-# Make sure all required commands are installed
-for COMMAND in "jq --help"; do
-  eval "${COMMAND}" &>/dev/null || echo "Please install the ${COMMAND// */} command"
-done
+def setup_logging():
+    logging_simple = "%(message)s"
+    logging_debug = "%(asctime)s %(levelname)s %(message)s"
 
-# Make sure we are at the top of the repo where the script is
-HERE="$(echo $(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd))"
-cd "${HERE}"
+    # Console handler
+    c_handler = logging.StreamHandler()
+    if args.verbose:
+        c_format = logging.Formatter(logging_debug)
+        c_level = logging.DEBUG
+    else:
+        c_format = logging.Formatter(logging_simple)
+        c_level = logging.INFO
+    c_handler.setFormatter(c_format)
+    c_handler.setLevel(c_level)
+    logging.getLogger().addHandler(c_handler)
 
-# Cleanup and prepare output directory
-rm -rf "${OUTPUT_DIR}"
-mkdir -p "${OUTPUT_DIR}/logs/builds"
-mkdir -p "${OUTPUT_DIR}/logs/tests"
-mkdir -p "${OUTPUT_DIR}/packages/py313"
-mkdir -p "${OUTPUT_DIR}/packages/py313t"
+    # File handler
+    f_handler = logging.FileHandler(filename=os.path.join(repo_top, "logs", "debug.log"))
+    f_handler.setFormatter(logging.Formatter(logging_debug))
+    f_handler.setLevel(logging.DEBUG)
+    logging.getLogger().addHandler(f_handler)
 
-PACKAGES="${@}"
+    logging.getLogger().setLevel(logging.DEBUG)
 
-# Check all feedstocks are available
-for PACKAGE in ${PACKAGES}; do
-  if ! [[ -d "${PACKAGE}-feedstock" ]]; then
-    echo "No feedstock found for package ${PACKAGE}"
-  fi
-done
-message "Feedstocks found for: ${@}"
 
-for PACKAGE in ${PACKAGES}; do
-  for ABI in py313 py313t; do
-    message "---"
-    build_package "${PACKAGE}" "${ABI}"
-    TARBALL_PATH="$(tarball_path "${PACKAGE}" "${ABI}")"
-    message "Package tarball is at ${TARBALL_PATH}"
-    message "ABI: $(tar xfO "${TARBALL_PATH}" info/index.json | jq -r .depends | grep '"python_abi ' | cut -d '"' -f 2)"
-    message "Number of files in the tarball's site-packages directory: $(tar tvf "${TARBALL_PATH}" | grep site-packages | wc -l | sed 's/[ \t]//g')"
-    cp "${TARBALL_PATH}" "${OUTPUT_DIR}/packages/${ABI}"
-  done
-done
+def conda_build(*arg_list):
+    proc = subprocess.run(["conda", "build"] + list(arg_list), capture_output=True)
+    log.debug("Running: %s", " ".join(proc.args))
+    if proc.returncode == 0:
+        output = proc.stdout
+    else:
+        output = proc.stderr
+    return proc.returncode, output
 
-for PACKAGE in ${PACKAGES}; do
-  for ABI in py313 py313t; do
-    message "---"
-    test_package "${PACKAGE}" "${ABI}"
-    STATUS="${?}"
-    if [[ "${STATUS}" == "0" ]]; then
-      message "PASSED"
-    else
-      message "FAILED"
-    fi
-  done
-done
+
+def conda_build_realtime(logpath, *arg_list):
+    proc = subprocess.Popen(["conda", "build"] + list(arg_list), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
+    log.debug("Running: %s", " ".join(proc.args))
+    with open(logpath, "w") as logfile:
+        while True:
+            bline = proc.stdout.readline()
+            if not bline:
+                break
+            line = bline.decode("ascii")
+            log.debug(line.rstrip())
+            logfile.write(line)
+
+
+def create_dir_for(filepath):
+    dirpath = os.path.split(filepath)[0]
+    if not os.path.isdir(dirpath):
+        os.makedirs(dirpath)
+
+
+def clean_packages(pkglist):
+    for pkg in pkglist:
+        if os.path.isfile(pkg):
+            os.remove(pkg)
+
+
+def check_builds(pkglist):
+    for pkg in pkglist:
+        if os.path.isfile(pkg):
+            log.info("Build complete")
+        else:
+            log.info("Build failed")
+
+
+def check_tests(logfile):
+    test_result = "Tests failed"
+    with open(logfile, "r") as file:
+        for line in file:
+            if line == "All tests passed\n":
+                test_result = "Tests passed"
+                break
+    log.info(test_result)
+
+
+class feedstock:
+    def __init__(self, path):
+        if os.path.isdir(path):
+            self.fullpath = os.path.abspath(path)
+        elif os.path.isdir(path + "-feedstock"):
+            self.fullpath = os.path.abspath(path + "-feedstock")
+        else:
+            log.error("Can't find a directory at '%s' or '%s'", path, path + "-feedstock")
+            raise ValueError
+        meta_path = os.path.join(self.fullpath, "recipe", "meta.yaml")
+        if not os.path.isfile(meta_path):
+            log.error("Can't find a recipe in '%s'", self.fullpath)
+            raise ValueError
+        self.path = os.path.split(self.fullpath)[0]
+        self.name = os.path.split(self.fullpath)[1]
+        log.debug("Found feedstock '%s' in '%s'", self.name, self.path)
+        self.pkglist = {"GIL": self._list_packages("GIL"), "free-threading": self._list_packages("free-threading")}
+
+
+    def _list_packages(self, variant):
+        log.info("Checking %s (%s)", self.name, variant)
+        err, output = conda_build("-c", CONDA_CHANNEL, "-m", variant_path[variant], "--output", self.fullpath)
+        if err:
+            log.debug(output)
+            raise ValueError
+        pkg_list = output.decode("ascii").splitlines()
+        log.debug("Output package(s) for %s variant of %s:", variant, self.name)
+        for pkg in pkg_list:
+            log.debug("    %s", pkg)
+        return pkg_list
+
+
+    def _build_if_needed(self, variant):
+        missing_packages = False
+        for pkg in self.pkglist[variant]:
+            if os.path.isfile(pkg):
+                log.debug("Found %s", pkg)
+            else:
+                log.debug("%s not found", pkg)
+                missing_packages = True
+        if missing_packages:
+            log.info("Building %s (%s)", self.name, variant)
+            logfile = os.path.join(repo_top, "logs", "builds", variant, self.name + ".log")
+            create_dir_for(logfile)
+            clean_packages(self.pkglist[variant])
+            conda_build_realtime(logfile, "-c", CONDA_CHANNEL, "-m", variant_path[variant], "--no-test", self.fullpath)
+            check_builds(self.pkglist[variant])
+        else:
+            log.info("All packages for %s variant of %s are already available", variant, self.name)
+
+
+    def _test_package(self, pkgpath, variant):
+        log.info("Testing %s (%s)", os.path.split(pkgpath)[1], variant)
+        logfile = os.path.join(repo_top, "logs", "tests", variant, self.name + ".log")
+        create_dir_for(logfile)
+        conda_build_realtime(logfile, "-c", CONDA_CHANNEL, "-m", variant_path[variant], "--test", pkgpath)
+        check_tests(logfile)
+
+
+    def _build_and_test(self, variant):
+        log.info("Building and testing %s (%s)", self.name, variant)
+        logfile = os.path.join(repo_top, "logs", "builds", variant, self.name + ".log")
+        create_dir_for(logfile)
+        clean_packages(self.pkglist[variant])
+        conda_build_realtime(logfile, "-c", CONDA_CHANNEL, "-m", variant_path[variant], self.fullpath)
+        check_tests(logfile)
+
+
+    def build(self):
+        for variant in ["GIL", "free-threading"]:
+            self._build_if_needed(variant)
+
+
+    def test(self):
+        for variant in ["GIL", "free-threading"]:
+            for pkg in self.pkglist[variant]:
+                self._test_package(pkg, variant)
+
+
+    def build_and_test(self):
+        for variant in ["GIL", "free-threading"]:
+            self._build_and_test(variant)
+
+
+if __name__ == "__main__":
+    args = parse_args()
+
+    repo_top = os.path.split(os.path.realpath(__file__))[0]
+    variant_path = {"GIL": os.path.join(repo_top, GIL_VARIANT), "free-threading": os.path.join(repo_top, THREADED_VARIANT)}
+    shutil.rmtree(os.path.join(repo_top, "logs"))
+    os.mkdir(os.path.join(repo_top, "logs"))
+
+    setup_logging()
+    log = logging.getLogger(__name__)
+    log.debug("Arguments: " + ", ".join([f"{i}={args.__dict__[i]}" for i in args.__dict__]))
+
+    feedstocks = []
+    for fp in args.feedstocks:
+        feedstocks.append(feedstock(fp))
+
+    # Build feedstocks
+    if not args.test and not args.build_and_test:
+        for fp in feedstocks:
+            fp.build()
+
+    # Test feedstocks
+    if not args.build and not args.build_and_test:
+        for fp in feedstocks:
+            fp.test()
+
+    # Build and test feedstocks in a single pass like conda-build would do
+    if args.build_and_test:
+        for fp in feedstocks:
+            fp.build_and_test()
