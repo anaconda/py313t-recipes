@@ -60,5 +60,42 @@ Build order:
 3. `meson-python`
 
 
+## Building `numpy`
+
+### Dependencies
+
+Build `numpy` with `--no-test` first.
+
+`numpy` build dependencies:
+  - `python-build`
+    - `pyproject_hooks`
+
+Then all build dependencies, then `numpy` without `-no-test`.
+
+`numpy` test dependencies:
+  - `mypy` (disable MYPYC until we can fix the compiler issues, tests fail)
+    - `mypy_extensions`
+    - `typing_extensions`
+    - `type-setuptools`
+    - `type-psutil`
+    - `psutil`
+    - `mkl-service`
+    - `pytz`
+  - `hypothesis`
+    - `attrs`
+      - `hatchling`
+        - `pathspec`
+        - `editables`
+        - `trove-classifiers`
+          - `calver`
+        - `pluggy`
+      - `hatch-vcs`
+        - `setuptools_scm`
+    - `black`
+    - `pandas` (`numpy` not installable?)
+  - `pytest-cov`
+    - `coverage`
+
+
 [^1]: The current recipe will install files from a wheel file. The package may need to be built again from the source distribution for correctness.
 [^2]: The current recipe will only build the `flit-core` package. The recipe will need to be built again without the `bootstrap`` setting to produce the `flit` package.
