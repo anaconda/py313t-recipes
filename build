@@ -230,7 +230,16 @@ if __name__ == "__main__":
 
     feedstocks = []
     for fp in args.feedstocks:
-        feedstocks.append(feedstock(fp))
+        f = feedstock(fp)
+        no_package = False
+        for variant in ["GIL", "free-threading"]:
+            if f.pkglist[variant] == [""]:
+                log.warning("%s will not produce any %s package", fp, variant)
+                no_package = True
+        if no_package:
+            log.error("%s will not produce any package, not adding it", fp)
+            continue
+        feedstocks.append(f)
 
     # Build feedstocks
     if not args.test and not args.build_and_test:
