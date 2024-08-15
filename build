@@ -238,7 +238,8 @@ if __name__ == "__main__":
 
     repo_top = os.path.split(os.path.realpath(__file__))[0]
     variant_path = {"GIL": os.path.join(repo_top, GIL_VARIANT), "free-threading": os.path.join(repo_top, THREADED_VARIANT)}
-    shutil.rmtree(os.path.join(repo_top, "logs"))
+    if os.path.exists(os.path.join(repo_top, "logs")):
+        shutil.rmtree(os.path.join(repo_top, "logs"))
     os.mkdir(os.path.join(repo_top, "logs"))
 
     setup_logging()
