@@ -115,11 +115,17 @@ def clean_packages(pkglist):
 
 
 def check_builds(pkglist):
+    missing_packages = False
     for pkg in pkglist:
         if os.path.isfile(pkg):
-            log.info("Build complete")
+            log.debug("Found %s", pkg)
         else:
-            log.info("Build failed")
+            missing_packages = True
+            log.debug("Didn't find %s", pkg)
+    if missing_packages:
+        log.info("Build failed")
+    else:
+        log.info("Build complete")
 
 
 def check_tests(logfile):
