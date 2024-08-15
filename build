@@ -130,6 +130,19 @@ def check_tests(logfile):
                 test_result = "Tests passed"
                 break
     log.info(test_result)
+    if test_result == "Tests passed":
+        return True
+    return False
+
+
+def save_package(variant, pkg):
+    dst = os.path.join(repo_top, "packages", variant, os.path.split(pkg)[1])
+    if os.path.isfile(dst):
+        log.debug("Package %s already saved to %s", pkg, dst)
+        return
+    create_dir_for(dst)
+    log.debug("Saving %s to %s", pkg, dst)
+    os.link(pkg, dst)
 
 
 class feedstock:
@@ -188,7 +201,8 @@ class feedstock:
         logfile = os.path.join(repo_top, "logs", "tests", variant, self.name + ".log")
         create_dir_for(logfile)
         conda_build_realtime(logfile, "-c", CONDA_CHANNEL, "-m", variant_path[variant], "--test", pkgpath)
-        check_tests(logfile)
+        if check_tests(logfile):
+            save_package(variant, pkgpath)
 
 
     def _build_and_test(self, variant):
@@ -197,7 +211,10 @@ class feedstock:
         create_dir_for(logfile)
         clean_packages(self.pkglist[variant])
         conda_build_realtime(logfile, "-c", CONDA_CHANNEL, "-m", variant_path[variant], self.fullpath)
-        check_tests(logfile)
+        # FIXME Checking tests doesn't work in this situation
+        # if check_tests(logfile):
+        #     for pkg in self.pkglist[variant]:
+        #         save_package(variant, pkg)
 
 
     def build(self):
