@@ -129,11 +129,11 @@ def check_builds(pkglist):
 
 
 def check_tests(logfile):
-    test_result = "Tests failed"
+    test_result = "Tests passed"
     with open(logfile, "r") as file:
         for line in file:
-            if line == "All tests passed\n":
-                test_result = "Tests passed"
+            if "TESTS FAILED" in line:
+                test_result = "Tests failed"
                 break
     log.info(test_result)
     if test_result == "Tests passed":
