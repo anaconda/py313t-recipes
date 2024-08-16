@@ -203,8 +203,9 @@ class feedstock:
 
 
     def _test_package(self, pkgpath, variant):
-        log.info("Testing %s (%s)", os.path.split(pkgpath)[1], variant)
-        logfile = os.path.join(repo_top, "logs", "tests", variant, self.name + ".log")
+        pkg_name =  os.path.split(pkgpath)[1]
+        log.info("Testing %s (%s)", pkg_name, variant)
+        logfile = os.path.join(repo_top, "logs", "tests", variant, pkg_name + ".log")
         create_dir_for(logfile)
         conda_build_realtime(logfile, "-c", CONDA_CHANNEL, "-m", variant_path[variant], "--test", pkgpath)
         if check_tests(logfile):
