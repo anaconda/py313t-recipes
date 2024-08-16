@@ -86,7 +86,7 @@ def conda_build(*arg_list):
         output = proc.stdout
     else:
         output = proc.stderr
-    return proc.returncode, output
+    return proc.returncode, output.decode("utf-8")
 
 
 def conda_build_realtime(logpath, *arg_list):
@@ -176,7 +176,7 @@ class feedstock:
         if err:
             log.debug(output)
             raise ValueError
-        pkg_list = output.decode("utf-8").splitlines()
+        pkg_list = output.splitlines()
         log.debug("Output package(s) for %s variant of %s:", variant, self.name)
         for pkg in pkg_list:
             log.debug("    %s", pkg)
