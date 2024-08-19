@@ -248,7 +248,7 @@ class feedstock:
 if __name__ == "__main__":
     args = parse_args()
 
-    repo_top = os.path.split(os.path.realpath(__file__))[0]
+    repo_top = os.path.split(os.path.split(os.path.realpath(__file__))[0])[0]
     variant_path = {"GIL": os.path.join(repo_top, GIL_VARIANT), "free-threading": os.path.join(repo_top, THREADED_VARIANT)}
     create_dir_for(os.path.join(repo_top, "logs", "."))
 
