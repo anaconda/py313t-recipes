@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+# TODO Used ValueError as an exception placeholder everywhere, make proper exceptions
+
 import argparse
 import logging
 import os
@@ -205,6 +207,9 @@ class feedstock:
     def _test_package(self, pkgpath, variant):
         pkg_name =  os.path.split(pkgpath)[1]
         log.info("Testing %s (%s)", pkg_name, variant)
+        if not os.path.isfile(pkgpath):
+            log.error("Tests failed (can't find %s)", pkgpath)
+            return
         logfile = os.path.join(repo_top, "logs", "tests", variant, pkg_name + ".log")
         create_dir_for(logfile)
         conda_build_realtime(logfile, "-c", CONDA_CHANNEL, "-m", variant_path[variant], "--test", pkgpath)
@@ -245,9 +250,7 @@ if __name__ == "__main__":
 
     repo_top = os.path.split(os.path.realpath(__file__))[0]
     variant_path = {"GIL": os.path.join(repo_top, GIL_VARIANT), "free-threading": os.path.join(repo_top, THREADED_VARIANT)}
-    if os.path.exists(os.path.join(repo_top, "logs")):
-        shutil.rmtree(os.path.join(repo_top, "logs"))
-    os.mkdir(os.path.join(repo_top, "logs"))
+    create_dir_for(os.path.join(repo_top, "logs", "."))
 
     setup_logging()
     log = logging.getLogger(__name__)
