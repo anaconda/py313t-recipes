@@ -19,6 +19,11 @@ def parse_args():
     argparser = argparse.ArgumentParser(
         prog="build",
         description="Multi-ABI (GIL and free-threading} build tool for Conda feedstocks")
+    argparser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help = "Show build and test output")
     build_test_group = argparser.add_mutually_exclusive_group()
     build_test_group.add_argument(
         "-b",
@@ -39,10 +44,10 @@ def parse_args():
             around some circular dependencies. Use this option to revert to the default conda-build
             behavior.""")
     argparser.add_argument(
-        "-v",
-        "--verbose",
+        "-f",
+        "--force",
         action="store_true",
-        help = "Show build and test output")
+        help = "Rebuild packages even when they already exist")
     # argparser.add_argument(
     #     "-m",
     #     "--variant",
@@ -186,14 +191,18 @@ class feedstock:
 
 
     def _build_if_needed(self, variant):
-        missing_packages = False
+        rebuild_packages = False
         for pkg in self.pkglist[variant]:
             if os.path.isfile(pkg):
-                log.debug("Found %s", pkg)
+                if args.force:
+                    rebuild_packages = True
+                    log.debug("Found %s but will rebuild it", pkg)
+                else:
+                    log.debug("Found %s", pkg)
             else:
                 log.debug("%s not found", pkg)
-                missing_packages = True
-        if missing_packages:
+                rebuild_packages = True
+        if rebuild_packages:
             log.info("Building %s (%s)", self.name, variant)
             logfile = os.path.join(repo_top, "logs", "builds", variant, self.name + ".log")
             create_dir_for(logfile)
