@@ -3,6 +3,7 @@
 # TODO Used ValueError as an exception placeholder everywhere, make proper exceptions
 
 import argparse
+import datetime
 import logging
 import os
 import shutil
@@ -19,30 +20,46 @@ def parse_args():
     argparser = argparse.ArgumentParser(
         prog="build",
         description="Multi-ABI (GIL and free-threading} build tool for Conda feedstocks")
+    argparser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Show build and test output")
     build_test_group = argparser.add_mutually_exclusive_group()
     build_test_group.add_argument(
         "-b",
         "--build",
         action="store_true",
-        help = "Only build feedstock(s)")
+        help="Only build feedstock(s)")
     build_test_group.add_argument(
         "-t",
         "--test",
-        action="store_true",
-        help = "Only test feedstock(s)")
+        action = "store_true",
+        help="Only test feedstock(s)")
     build_test_group.add_argument(
         "--build-and-test",
         action="store_true",
-        help = """Build and test each feedstock in a single pass like conda-build would do. When
+        help="""Build and test each feedstock in a single pass like conda-build would do. When
             building feedstocks, the default is they will first be all built in the order passed on
             the command-line, then all tested in the same order. This is done to automaticaly work
             around some circular dependencies. Use this option to revert to the default conda-build
             behavior.""")
+    variant_group = argparser.add_mutually_exclusive_group()
+    variant_group.add_argument(
+            "-G",
+            "--GIL",
+            action="store_true",
+            help="Build/test GIL packages only")
+    variant_group.add_argument(
+            "-F",
+            "--free-threading",
+            action="store_true",
+            help="Build/test free-threading packages only")
     argparser.add_argument(
-        "-v",
-        "--verbose",
+        "-f",
+        "--force",
         action="store_true",
-        help = "Show build and test output")
+        help = "Rebuild packages even when they already exist")
     # argparser.add_argument(
     #     "-m",
     #     "--variant",
@@ -54,6 +71,10 @@ def parse_args():
         nargs = "+",
         help = "List of feedstocks to build and/or test")
     return argparser.parse_args()
+
+
+def time_suffix():
+    return datetime.datetime.now().strftime('_%Y-%m-%d_%H:%M:%S')
 
 
 def setup_logging():
@@ -73,7 +94,8 @@ def setup_logging():
     logging.getLogger().addHandler(c_handler)
 
     # File handler
-    f_handler = logging.FileHandler(filename=os.path.join(repo_top, "logs", "debug.log"))
+    f_handler = logging.FileHandler(filename=os.path.join(repo_top, "logs", "debug" + time_suffix()
+        + ".log"))
     f_handler.setFormatter(logging.Formatter(logging_debug))
     f_handler.setLevel(logging.DEBUG)
     logging.getLogger().addHandler(f_handler)
@@ -169,7 +191,7 @@ class feedstock:
         self.path = os.path.split(self.fullpath)[0]
         self.name = os.path.split(self.fullpath)[1]
         log.debug("Found feedstock '%s' in '%s'", self.name, self.path)
-        self.pkglist = {"GIL": self._list_packages("GIL"), "free-threading": self._list_packages("free-threading")}
+        self.pkglist = {v: self._list_packages(v) for v in variants}
 
 
     def _list_packages(self, variant):
@@ -186,16 +208,20 @@ class feedstock:
 
 
     def _build_if_needed(self, variant):
-        missing_packages = False
+        rebuild_packages = False
         for pkg in self.pkglist[variant]:
             if os.path.isfile(pkg):
-                log.debug("Found %s", pkg)
+                if args.force:
+                    rebuild_packages = True
+                    log.debug("Found %s but will rebuild it", pkg)
+                else:
+                    log.debug("Found %s", pkg)
             else:
                 log.debug("%s not found", pkg)
-                missing_packages = True
-        if missing_packages:
+                rebuild_packages = True
+        if rebuild_packages:
             log.info("Building %s (%s)", self.name, variant)
-            logfile = os.path.join(repo_top, "logs", "builds", variant, self.name + ".log")
+            logfile = os.path.join(repo_top, "logs", "builds", variant, self.name + time_suffix() + ".log")
             create_dir_for(logfile)
             clean_packages(self.pkglist[variant])
             conda_build_realtime(logfile, "-c", CONDA_CHANNEL, "-m", variant_path[variant], "--no-test", self.fullpath)
@@ -210,7 +236,7 @@ class feedstock:
         if not os.path.isfile(pkgpath):
             log.error("Tests failed (can't find %s)", pkgpath)
             return
-        logfile = os.path.join(repo_top, "logs", "tests", variant, pkg_name + ".log")
+        logfile = os.path.join(repo_top, "logs", "tests", variant, pkg_name + time_suffix() + ".log")
         create_dir_for(logfile)
         conda_build_realtime(logfile, "-c", CONDA_CHANNEL, "-m", variant_path[variant], "--test", pkgpath)
         if check_tests(logfile):
@@ -219,7 +245,7 @@ class feedstock:
 
     def _build_and_test(self, variant):
         log.info("Building and testing %s (%s)", self.name, variant)
-        logfile = os.path.join(repo_top, "logs", "builds", variant, self.name + ".log")
+        logfile = os.path.join(repo_top, "logs", "builds", variant, self.name + time_suffix() + ".log")
         create_dir_for(logfile)
         clean_packages(self.pkglist[variant])
         conda_build_realtime(logfile, "-c", CONDA_CHANNEL, "-m", variant_path[variant], self.fullpath)
@@ -230,18 +256,18 @@ class feedstock:
 
 
     def build(self):
-        for variant in ["GIL", "free-threading"]:
+        for variant in variants:
             self._build_if_needed(variant)
 
 
     def test(self):
-        for variant in ["GIL", "free-threading"]:
+        for variant in variants:
             for pkg in self.pkglist[variant]:
                 self._test_package(pkg, variant)
 
 
     def build_and_test(self):
-        for variant in ["GIL", "free-threading"]:
+        for variant in variants:
             self._build_and_test(variant)
 
 
@@ -249,18 +275,26 @@ if __name__ == "__main__":
     args = parse_args()
 
     repo_top = os.path.split(os.path.split(os.path.realpath(__file__))[0])[0]
-    variant_path = {"GIL": os.path.join(repo_top, GIL_VARIANT), "free-threading": os.path.join(repo_top, THREADED_VARIANT)}
-    create_dir_for(os.path.join(repo_top, "logs", "."))
 
+    create_dir_for(os.path.join(repo_top, "logs", "."))
     setup_logging()
     log = logging.getLogger(__name__)
     log.debug("Arguments: " + ", ".join([f"{i}={args.__dict__[i]}" for i in args.__dict__]))
+
+    if args.GIL:
+        variants = ["GIL"]
+    elif args.free_threading:
+        variants = ["free-threading"]
+    else:
+        variants = ["GIL", "free-threading"]
+    variant_path = {"GIL": os.path.join(repo_top, GIL_VARIANT), "free-threading": os.path.join(repo_top, THREADED_VARIANT)}
+    log.debug("Varients: %s", variants)
 
     feedstocks = []
     for fp in args.feedstocks:
         f = feedstock(fp)
         no_package = False
-        for variant in ["GIL", "free-threading"]:
+        for variant in variants:
             if f.pkglist[variant] == [""]:
                 log.warning("%s will not produce any %s package", fp, variant)
                 no_package = True
