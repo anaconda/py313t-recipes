@@ -53,3 +53,99 @@
 [submodule "pretend-feedstock"]
 	path = pretend-feedstock
 	url = git@github.com:AnacondaRecipes/pretend-feedstock.git
+[submodule "attrs-feedstock"]
+	path = attrs-feedstock
+	url = git@github.com:AnacondaRecipes/attrs-feedstock.git
+[submodule "black-feedstock"]
+	path = black-feedstock
+	url = git@github.com:AnacondaRecipes/black-feedstock.git
+[submodule "calver-feedstock"]
+	path = calver-feedstock
+	url = git@github.com:AnacondaRecipes/calver-feedstock.git
+[submodule "editables-feedstock"]
+	path = editables-feedstock
+	url = git@github.com:AnacondaRecipes/editables-feedstock.git
+[submodule "hatch-vcs-feedstock"]
+	path = hatch-vcs-feedstock
+	url = git@github.com:AnacondaRecipes/hatch-vcs-feedstock.git
+[submodule "hatchling-feedstock"]
+	path = hatchling-feedstock
+	url = git@github.com:AnacondaRecipes/hatchling-feedstock.git
+[submodule "hypothesis-feedstock"]
+	path = hypothesis-feedstock
+	url = git@github.com:AnacondaRecipes/hypothesis-feedstock.git
+[submodule "mkl-service-feedstock"]
+	path = mkl-service-feedstock
+	url = git@github.com:AnacondaRecipes/mkl-service-feedstock.git
+[submodule "mypy-feedstock"]
+	path = mypy-feedstock
+	url = git@github.com:AnacondaRecipes/mypy-feedstock.git
+[submodule "mypy_extensions-feedstock"]
+	path = mypy_extensions-feedstock
+	url = git@github.com:AnacondaRecipes/mypy_extensions-feedstock.git
+[submodule "numpy-feedstock"]
+	path = numpy-feedstock
+	url = git@github.com:AnacondaRecipes/numpy-feedstock.git
+[submodule "pandas-feedstock"]
+	path = pandas-feedstock
+	url = git@github.com:AnacondaRecipes/pandas-feedstock.git
+[submodule "pathspec-feedstock"]
+	path = pathspec-feedstock
+	url = git@github.com:AnacondaRecipes/pathspec-feedstock.git
+[submodule "pluggy-feedstock"]
+	path = pluggy-feedstock
+	url = git@github.com:AnacondaRecipes/pluggy-feedstock.git
+[submodule "psutil-feedstock"]
+	path = psutil-feedstock
+	url = git@github.com:AnacondaRecipes/psutil-feedstock.git
+[submodule "pyproject_hooks-feedstock"]
+	path = pyproject_hooks-feedstock
+	url = git@github.com:AnacondaRecipes/pyproject_hooks-feedstock.git
+[submodule "pytz-feedstock"]
+	path = pytz-feedstock
+	url = git@github.com:AnacondaRecipes/pytz-feedstock.git
+[submodule "setuptools_scm-feedstock"]
+	path = setuptools_scm-feedstock
+	url = git@github.com:AnacondaRecipes/setuptools_scm-feedstock.git
+[submodule "trove-classifiers-feedstock"]
+	path = trove-classifiers-feedstock
+	url = git@github.com:AnacondaRecipes/trove-classifiers-feedstock.git
+[submodule "types-psutil-feedstock"]
+	path = types-psutil-feedstock
+	url = git@github.com:AnacondaRecipes/types-psutil-feedstock.git
+[submodule "types-setuptools-feedstock"]
+	path = types-setuptools-feedstock
+	url = git@github.com:AnacondaRecipes/types-setuptools-feedstock.git
+[submodule "typing_extensions-feedstock"]
+	path = typing_extensions-feedstock
+	url = git@github.com:AnacondaRecipes/typing_extensions-feedstock.git
+[submodule "pytest-cov-feedstock"]
+	path = pytest-cov-feedstock
+	url = git@github.com:AnacondaRecipes/pytest-cov-feedstock.git
+[submodule "coverage-feedstock"]
+	path = coverage-feedstock
+	url = git@github.com:AnacondaRecipes/coverage-feedstock.git
+[submodule "versioneer-feedstock"]
+	path = versioneer-feedstock
+	url = git@github.com:AnacondaRecipes/versioneer-feedstock.git
+[submodule "bottleneck-feedstock"]
+	path = bottleneck-feedstock
+	url = git@github.com:AnacondaRecipes/bottleneck-feedstock.git
+[submodule "rich-feedstock"]
+	path = rich-feedstock
+	url = git@github.com:AnacondaRecipes/rich-feedstock.git
+[submodule "markdown-it-py-feedstock"]
+	path = markdown-it-py-feedstock
+	url = git@github.com:AnacondaRecipes/markdown-it-py-feedstock.git
+[submodule "pygments-feedstock"]
+	path = pygments-feedstock
+	url = git@github.com:AnacondaRecipes/pygments-feedstock.git
+[submodule "mdurl-feedstock"]
+	path = mdurl-feedstock
+	url = git@github.com:AnacondaRecipes/mdurl-feedstock.git
+[submodule "numexpr-feedstock"]
+	path = numexpr-feedstock
+	url = git@github.com:AnacondaRecipes/numexpr-feedstock.git
+[submodule "pytest-forked-feedstock"]
+	path = pytest-forked-feedstock
+	url = git@github.com:AnacondaRecipes/pytest-forked-feedstock.git
