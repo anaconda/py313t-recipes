@@ -60,6 +60,44 @@ Build order:
 3. `meson-python`
 
 
+## Building `hatchling` and `hatch-vcs`
+
+`hatchling` can be built after `meson-python` or after the core packages with
+minor modification to the build order.
+
+1. Build these in no specific order:
+    - `pathspec`
+    - `editables`
+    - `calver`
+    - `pluggy`
+
+2. `trove-clasifiers`
+
+3. `hatchling`
+
+4. `setuptools_scm`
+
+5. `hatch-vcs`
+
+
+## Building `requests`
+
+These can be built after `hatch-vcs`
+
+Build order:
+
+1. Build these in no specific order:
+    * `idna`
+    * `certifi`
+    * `pysocks`
+
+#2. `brotli-python` : one of the outputs from the brotli-feedstock.
+
+3. `urllib3`
+
+4. `requests`
+
+
 ## Building `numpy`
 
 ### Dependencies
@@ -83,37 +121,10 @@ Then all build dependencies, then `numpy` without `-no-test`.
     - `pytz`
   - `hypothesis`
     - `attrs`
-      - `hatchling`
-        - `pathspec`
-        - `editables`
-        - `trove-classifiers`
-          - `calver`
-        - `pluggy`
-      - `hatch-vcs`
-        - `setuptools_scm`
     - `black`
     - `pandas` (`numpy` not installable?)
   - `pytest-cov`
     - `coverage`
-
-
-## Building `requests`
-
-`requests` can be built after `numpy` and `pandas` or ealier but will require a
-different build order.
-
-Build order:
-
-1. Build these in no specific order:
-    * `idna`
-    * `certifi`
-    * `pysocks`
-
-2. `brotli-python` : one of the outputs from the brotli-feedstock.
-
-3. `urllib3`
-
-4. `requests`
 
 
 [^1]: The current recipe will install files from a wheel file. The package may need to be built again from the source distribution for correctness.
