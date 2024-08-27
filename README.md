@@ -82,7 +82,7 @@ minor modification to the build order.
 
 ## Building `requests`
 
-These can be built after `hatch-vcs`
+`requests` can be built after `hatch-vcs`
 
 Build order:
 
@@ -91,11 +91,28 @@ Build order:
     * `certifi`
     * `pysocks`
 
-#2. `brotli-python` : one of the outputs from the brotli-feedstock.
+2. `brotli-python` : one of the outputs from the brotli-feedstock.
 
 3. `urllib3`
 
 4. `requests`
+
+
+## Building `mypy`
+
+`mypy` can build built after the python core packages.
+
+Build order:
+
+1. Build these in no specific order:
+    - `mypy_extensions`
+    - `typing_extensions`
+    - `types-setuptools`
+    - `type-psutil`
+    - `psutil`
+    - `pytz`
+
+2.  `mypy` (disable MYPYC until we can fix the compiler issues, tests fail)
 
 
 ## Building `numpy`
@@ -111,14 +128,6 @@ Build `numpy` with `--no-test` first.
 Then all build dependencies, then `numpy` without `-no-test`.
 
 `numpy` test dependencies:
-  - `mypy` (disable MYPYC until we can fix the compiler issues, tests fail)
-    - `mypy_extensions`
-    - `typing_extensions`
-    - `type-setuptools`
-    - `type-psutil`
-    - `psutil`
-    - `mkl-service`
-    - `pytz`
   - `hypothesis`
     - `attrs`
     - `black`
