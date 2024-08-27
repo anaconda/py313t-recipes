@@ -8,7 +8,7 @@ The submodules in this repository are all branches of [Anaconda recipes](https:/
 - Add `add_pip_as_python_dependency: False` to your `~/.condarc`.
 
 - Either add the `ad-testing/label/py313_nogil` channel to your `.condarc` or always pass it to `conda build`.
-  For example, when building `meson`:  
+  For example, when building `meson`:
   `conda build --no-test -c ad-testing/label/py313_nogil meson-feedstock`
 
 - Always run `conda build` from the top directory in this repository.
@@ -115,15 +115,56 @@ Build order:
 2.  `mypy` (disable MYPYC until we can fix the compiler issues, tests fail)
 
 
-## Building `numpy`
+## Building `rich`
 
-### Dependencies
+`rich` can be built after the core packages.
+
+Build order:
+
+1. Build these in no specific order:
+    - `pygments`
+    - `mdurl`
+
+2. `markdown-it-py`
+
+3. `rich`
+
+
+## Building `numpy` build and test dependencies
+
+These need to be built before `numpy` and depend on various packages above.
+After these have been built `numpy` can be built with the `--no-test` option.
+
+Build order for `python-build`
+
+1. `pyproject_hooks`
+
+2. `python-build`
+
+
+## Building `numpy` test dependencies
+
+These can packages can be  builtand tested before testing `numpy`.
+They can also be built before building `numpy` if desired.
+
+Build order for `pytest-cov`
+
+1. `coverage`
+
+2. `pytest-cov`
+
+
+## Testing `numpy` and `pandas`
+
+
+Build order:
+
+1. Build these in no specific order:
+
+2. Build these in no specific order:
 
 Build `numpy` with `--no-test` first.
 
-`numpy` build dependencies:
-  - `python-build`
-    - `pyproject_hooks`
 
 Then all build dependencies, then `numpy` without `-no-test`.
 
@@ -132,8 +173,6 @@ Then all build dependencies, then `numpy` without `-no-test`.
     - `attrs`
     - `black`
     - `pandas` (`numpy` not installable?)
-  - `pytest-cov`
-    - `coverage`
 
 
 [^1]: The current recipe will install files from a wheel file. The package may need to be built again from the source distribution for correctness.
