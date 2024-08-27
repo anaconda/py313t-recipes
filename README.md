@@ -144,7 +144,7 @@ Build order for `python-build`
 
 ## Building `numpy` test dependencies
 
-These can packages can be  builtand tested before testing `numpy`.
+These can packages can be built and tested before testing `numpy`.
 They can also be built before building `numpy` if desired.
 
 Build order for `pytest-cov`
@@ -153,26 +153,35 @@ Build order for `pytest-cov`
 
 2. `pytest-cov`
 
+Other test dependencies:
 
-## Testing `numpy` and `pandas`
+1. Build these in no specific order:
+    - `black`
+    - `versioneer`
+    - `pytest-forked`
 
+
+## Building `numpy` and `pandas`
+
+These require many of the above packages.
 
 Build order:
 
-1. Build these in no specific order:
+1. `hypothesis` : build with `--no-test`
 
-2. Build these in no specific order:
+2. `attrs`
 
-Build `numpy` with `--no-test` first.
+3. `numpy` : build with `--no-test`
 
+4. Build these in no specific order:
+    - `numexpr`
+    - `bottleneck`
 
-Then all build dependencies, then `numpy` without `-no-test`.
+5. `pandas`
 
-`numpy` test dependencies:
-  - `hypothesis`
-    - `attrs`
-    - `black`
-    - `pandas` (`numpy` not installable?)
+6. `hypothesis` : test existing package or rebuild
+
+7. `numpy` : test existing package or rebuild
 
 
 [^1]: The current recipe will install files from a wheel file. The package may need to be built again from the source distribution for correctness.
