@@ -149,3 +149,21 @@
 [submodule "pytest-forked-feedstock"]
 	path = pytest-forked-feedstock
 	url = git@github.com:AnacondaRecipes/pytest-forked-feedstock.git
+[submodule "requests-feedstock"]
+	path = requests-feedstock
+	url = git@github.com:AnacondaRecipes/requests-feedstock.git
+[submodule "urllib3-feedstock"]
+	path = urllib3-feedstock
+	url = git@github.com:AnacondaRecipes/urllib3-feedstock.git
+[submodule "idna-feedstock"]
+	path = idna-feedstock
+	url = git@github.com:AnacondaRecipes/idna-feedstock.git
+[submodule "certifi-feedstock"]
+	path = certifi-feedstock
+	url = git@github.com:AnacondaRecipes/certifi-feedstock.git
+[submodule "pysocks-feedstock"]
+	path = pysocks-feedstock
+	url = git@github.com:AnacondaRecipes/pysocks-feedstock.git
+[submodule "brotli-feedstock"]
+	path = brotli-feedstock
+	url = git@github.com:AnacondaRecipes/brotli-feedstock.git
