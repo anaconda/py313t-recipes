@@ -97,5 +97,24 @@ Then all build dependencies, then `numpy` without `-no-test`.
     - `coverage`
 
 
+## Building `requests`
+
+`requests` can be built after `numpy` and `pandas` or ealier but will require a
+different build order.
+
+Build order:
+
+1. Build these in no specific order:
+    * `idna`
+    * `certifi`
+    * `pysocks`
+
+2. `brotli-python` : one of the outputs from the brotli-feedstock.
+
+3. `urllib3`
+
+4. `requests`
+
+
 [^1]: The current recipe will install files from a wheel file. The package may need to be built again from the source distribution for correctness.
 [^2]: The current recipe will only build the `flit-core` package. The recipe will need to be built again without the `bootstrap`` setting to produce the `flit` package.
