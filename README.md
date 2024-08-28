@@ -8,7 +8,7 @@ The submodules in this repository are all branches of [Anaconda recipes](https:/
 - Add `add_pip_as_python_dependency: False` to your `~/.condarc`.
 
 - Either add the `ad-testing/label/py313_nogil` channel to your `.condarc` or always pass it to `conda build`.
-  For example, when building `meson`:  
+  For example, when building `meson`:
   `conda build --no-test -c ad-testing/label/py313_nogil meson-feedstock`
 
 - Always run `conda build` from the top directory in this repository.
@@ -82,7 +82,7 @@ minor modification to the build order.
 
 ## Building `requests`
 
-These can be built after `hatch-vcs`
+`requests` can be built after `hatch-vcs`
 
 Build order:
 
@@ -91,40 +91,97 @@ Build order:
     * `certifi`
     * `pysocks`
 
-#2. `brotli-python` : one of the outputs from the brotli-feedstock.
+2. `brotli-python` : one of the outputs from the brotli-feedstock.
 
 3. `urllib3`
 
 4. `requests`
 
 
-## Building `numpy`
+## Building `mypy`
 
-### Dependencies
+`mypy` can build built after the python core packages.
 
-Build `numpy` with `--no-test` first.
+Build order:
 
-`numpy` build dependencies:
-  - `python-build`
-    - `pyproject_hooks`
-
-Then all build dependencies, then `numpy` without `-no-test`.
-
-`numpy` test dependencies:
-  - `mypy` (disable MYPYC until we can fix the compiler issues, tests fail)
+1. Build these in no specific order:
     - `mypy_extensions`
     - `typing_extensions`
-    - `type-setuptools`
+    - `types-setuptools`
     - `type-psutil`
     - `psutil`
-    - `mkl-service`
     - `pytz`
-  - `hypothesis`
-    - `attrs`
+
+2.  `mypy` (disable MYPYC until we can fix the compiler issues, tests fail)
+
+
+## Building `rich`
+
+`rich` can be built after the core packages.
+
+Build order:
+
+1. Build these in no specific order:
+    - `pygments`
+    - `mdurl`
+
+2. `markdown-it-py`
+
+3. `rich`
+
+
+## Building `numpy` build and test dependencies
+
+These need to be built before `numpy` and depend on various packages above.
+After these have been built `numpy` can be built with the `--no-test` option.
+
+Build order for `python-build`
+
+1. `pyproject_hooks`
+
+2. `python-build`
+
+
+## Building `numpy` test dependencies
+
+These can packages can be built and tested before testing `numpy`.
+They can also be built before building `numpy` if desired.
+
+Build order for `pytest-cov`
+
+1. `coverage`
+
+2. `pytest-cov`
+
+Other test dependencies:
+
+1. Build these in no specific order:
     - `black`
-    - `pandas` (`numpy` not installable?)
-  - `pytest-cov`
-    - `coverage`
+    - `versioneer`
+    - `pytest-forked`
+
+
+## Building `numpy` and `pandas`
+
+These require many of the above packages.
+
+Build order:
+
+1. `hypothesis` : build with `--no-test`
+
+2. `attrs`
+
+3. `numpy` : build with `--no-test`
+
+4. Build these in no specific order:
+    - `numexpr`
+    - `bottleneck`
+
+5. `pandas`
+
+6. `hypothesis` : test existing package or rebuild
+
+7. `numpy` : test existing package or rebuild
 
 
 [^1]: The current recipe will install files from a wheel file. The package may need to be built again from the source distribution for correctness.
