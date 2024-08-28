@@ -56,10 +56,15 @@ def parse_args():
             action="store_true",
             help="Build/test free-threading packages only")
     argparser.add_argument(
+        "-c",
+        "--channel",
+        default=CONDA_CHANNEL,
+        help="Override Conda chennel")
+    argparser.add_argument(
         "-f",
         "--force",
         action="store_true",
-        help = "Rebuild packages even when they already exist")
+        help="Rebuild packages even when they already exist")
     # argparser.add_argument(
     #     "-m",
     #     "--variant",
@@ -196,7 +201,7 @@ class feedstock:
 
     def _list_packages(self, variant):
         log.info("Checking %s (%s)", self.name, variant)
-        err, output = conda_build("-c", CONDA_CHANNEL, "-m", variant_path[variant], "--output", self.fullpath)
+        err, output = conda_build("-c", args.channel, "-m", variant_path[variant], "--output", self.fullpath)
         if err:
             log.debug(output)
             raise ValueError
@@ -224,7 +229,7 @@ class feedstock:
             logfile = os.path.join(repo_top, "logs", "builds", variant, self.name + time_suffix() + ".log")
             create_dir_for(logfile)
             clean_packages(self.pkglist[variant])
-            conda_build_realtime(logfile, "-c", CONDA_CHANNEL, "-m", variant_path[variant], "--no-test", self.fullpath)
+            conda_build_realtime(logfile, "-c", args.channel, "-m", variant_path[variant], "--no-test", self.fullpath)
             check_builds(self.pkglist[variant])
         else:
             log.info("All packages for %s variant of %s are already available", variant, self.name)
@@ -238,7 +243,7 @@ class feedstock:
             return
         logfile = os.path.join(repo_top, "logs", "tests", variant, pkg_name + time_suffix() + ".log")
         create_dir_for(logfile)
-        conda_build_realtime(logfile, "-c", CONDA_CHANNEL, "-m", variant_path[variant], "--test", pkgpath)
+        conda_build_realtime(logfile, "-c", args.channel, "-m", variant_path[variant], "--test", pkgpath)
         if check_tests(logfile):
             save_package(variant, pkgpath)
 
@@ -248,7 +253,7 @@ class feedstock:
         logfile = os.path.join(repo_top, "logs", "builds", variant, self.name + time_suffix() + ".log")
         create_dir_for(logfile)
         clean_packages(self.pkglist[variant])
-        conda_build_realtime(logfile, "-c", CONDA_CHANNEL, "-m", variant_path[variant], self.fullpath)
+        conda_build_realtime(logfile, "-c", args.channel, "-m", variant_path[variant], self.fullpath)
         # FIXME Checking tests doesn't work in this situation
         # if check_tests(logfile):
         #     for pkg in self.pkglist[variant]:
