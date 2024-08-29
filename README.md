@@ -192,6 +192,7 @@ These packages can be built after building `hatchling`
     - `filelock`
     - `markupsafe`
     - `fsspec` : recipe in filesystem-spec-feedstock
+    - `pyyaml`
 
 2. `jinja2`
 
