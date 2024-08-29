@@ -184,5 +184,17 @@ Build order:
 7. `numpy` : test existing package or rebuild
 
 
+## Building Other Packages (1)
+
+These packages can be built after building `hatchling`
+
+1. Build these in no specific order:
+    - `filelock`
+    - `markupsafe`
+    - `fsspec` : recipe in filesystem-spec-feedstock
+
+2. `jinja2`
+
+
 [^1]: The current recipe will install files from a wheel file. The package may need to be built again from the source distribution for correctness.
 [^2]: The current recipe will only build the `flit-core` package. The recipe will need to be built again without the `bootstrap`` setting to produce the `flit` package.
