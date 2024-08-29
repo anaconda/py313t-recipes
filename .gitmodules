@@ -167,3 +167,18 @@
 [submodule "brotli-feedstock"]
 	path = brotli-feedstock
 	url = git@github.com:AnacondaRecipes/brotli-feedstock.git
+[submodule "filelock-feedstock"]
+	path = filelock-feedstock
+	url = git@github.com:AnacondaRecipes/filelock-feedstock.git
+[submodule "jinja2-feedstock"]
+	path = jinja2-feedstock
+	url = git@github.com:AnacondaRecipes/jinja2-feedstock.git
+[submodule "markupsafe-feedstock"]
+	path = markupsafe-feedstock
+	url = git@github.com:AnacondaRecipes/markupsafe-feedstock.git
+[submodule "pyyaml-feedstock"]
+	path = pyyaml-feedstock
+	url = git@github.com:AnacondaRecipes/pyyaml-feedstock.git
+[submodule "filesystem-spec-feedstock"]
+	path = filesystem-spec-feedstock
+	url = git@github.com:AnacondaRecipes/filesystem-spec-feedstock.git
