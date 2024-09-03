@@ -46,15 +46,23 @@ def parse_args():
             behavior.""")
     variant_group = argparser.add_mutually_exclusive_group()
     variant_group.add_argument(
-            "-G",
-            "--GIL",
-            action="store_true",
-            help="Build/test GIL packages only")
+        "-G",
+        "--GIL",
+        action="store_true",
+        help="Build/test GIL packages only")
     variant_group.add_argument(
-            "-F",
-            "--free-threading",
-            action="store_true",
-            help="Build/test free-threading packages only")
+        "-F",
+        "--free-threading",
+        action="store_true",
+        help="Build/test free-threading packages only")
+    variant_group.add_argument(
+        "-m",
+        "--variant",
+        nargs = 1,
+        action = "append",
+        help = """Path to a variant YAML file to override the default of using both GIL and
+            free-threading variants (may be passed multiple times). Use a quoted empty string or
+            None for no variant.""")
     argparser.add_argument(
         "-c",
         "--channel",
@@ -65,12 +73,6 @@ def parse_args():
         "--force",
         action="store_true",
         help="Rebuild packages even when they already exist")
-    # argparser.add_argument(
-    #     "-m",
-    #     "--variant",
-    #     nargs = 1,
-    #     action = "append",
-    #     help = "Add a variant config file (may be passed multiple times)")
     argparser.add_argument(
         "feedstocks",
         nargs = "+",
@@ -108,7 +110,9 @@ def setup_logging():
     logging.getLogger().setLevel(logging.DEBUG)
 
 
-def conda_build(*arg_list):
+def conda_build(variant, *arg_list):
+    if variant != "NoVariant":
+        arg_list = ("-m", variant_path[variant]) + arg_list
     proc = subprocess.run(["conda", "build"] + list(arg_list), capture_output=True)
     log.debug("Running: %s", " ".join(proc.args))
     if proc.returncode == 0:
@@ -118,7 +122,9 @@ def conda_build(*arg_list):
     return proc.returncode, output.decode("utf-8")
 
 
-def conda_build_realtime(logpath, *arg_list):
+def conda_build_realtime(logpath, variant, *arg_list):
+    if variant != "NoVariant":
+        arg_list = ("-m", variant_path[variant]) + arg_list
     proc = subprocess.Popen(["conda", "build"] + list(arg_list), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
     log.debug("Running: %s", " ".join(proc.args))
     with open(logpath, "w") as logfile:
@@ -201,7 +207,7 @@ class feedstock:
 
     def _list_packages(self, variant):
         log.info("Checking %s (%s)", self.name, variant)
-        err, output = conda_build("-c", args.channel, "-m", variant_path[variant], "--output", self.fullpath)
+        err, output = conda_build(variant, "-c", args.channel, "--output", self.fullpath)
         if err:
             log.debug(output)
             raise ValueError
@@ -229,7 +235,7 @@ class feedstock:
             logfile = os.path.join(repo_top, "logs", "builds", variant, self.name + time_suffix() + ".log")
             create_dir_for(logfile)
             clean_packages(self.pkglist[variant])
-            conda_build_realtime(logfile, "-c", args.channel, "-m", variant_path[variant], "--no-test", self.fullpath)
+            conda_build_realtime(logfile, variant, "-c", args.channel, "--no-test", self.fullpath)
             check_builds(self.pkglist[variant])
         else:
             log.info("All packages for %s variant of %s are already available", variant, self.name)
@@ -243,7 +249,7 @@ class feedstock:
             return
         logfile = os.path.join(repo_top, "logs", "tests", variant, pkg_name + time_suffix() + ".log")
         create_dir_for(logfile)
-        conda_build_realtime(logfile, "-c", args.channel, "-m", variant_path[variant], "--test", pkgpath)
+        conda_build_realtime(logfile, variant, "-c", args.channel, "--test", pkgpath)
         if check_tests(logfile):
             save_package(variant, pkgpath)
 
@@ -253,7 +259,7 @@ class feedstock:
         logfile = os.path.join(repo_top, "logs", "builds", variant, self.name + time_suffix() + ".log")
         create_dir_for(logfile)
         clean_packages(self.pkglist[variant])
-        conda_build_realtime(logfile, "-c", args.channel, "-m", variant_path[variant], self.fullpath)
+        conda_build_realtime(logfile, variant, "-c", args.channel, self.fullpath)
         # FIXME Checking tests doesn't work in this situation
         # if check_tests(logfile):
         #     for pkg in self.pkglist[variant]:
@@ -288,12 +294,28 @@ if __name__ == "__main__":
 
     if args.GIL:
         variants = ["GIL"]
+        variant_path = {"GIL": os.path.join(repo_top, GIL_VARIANT)}
     elif args.free_threading:
         variants = ["free-threading"]
+        variant_path = {"free-threading": os.path.join(repo_top, THREADED_VARIANT)}
+    elif args.variant:
+        variants = []
+        variant_path = {}
+        for variant in args.variant:
+            path = os.path.abspath(variant[0])
+            if variant[0] in ("", "None"):
+                variants.append("NoVariant")
+            elif os.path.isfile(path):
+                variants.append(variant[0])
+                variant_path[variant[0]] = path
+            else:
+                log.debug("Can't find %s", path)
+                raise ValueError
     else:
         variants = ["GIL", "free-threading"]
-    variant_path = {"GIL": os.path.join(repo_top, GIL_VARIANT), "free-threading": os.path.join(repo_top, THREADED_VARIANT)}
-    log.debug("Varients: %s", variants)
+        variant_path = {"GIL": os.path.join(repo_top, GIL_VARIANT), "free-threading": os.path.join(repo_top, THREADED_VARIANT)}
+    log.debug("Variants: %s", variants)
+    log.debug("Variant paths: %s", variant_path)
 
     feedstocks = []
     for fp in args.feedstocks:
