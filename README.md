@@ -17,23 +17,21 @@ The submodules in this repository are all branches of [Anaconda recipes](https:/
 
 ## Build order for core packages
 
-1. `python`
+1. `python_abi`
 
-2. `python_abi`
+2. `python`
 
-3. `pip`[^1]
+3. `setuptools` (with `--no-test`)
 
-4. These two packages in any order:
-   - `setuptools`
-   - `flit`[^2]
+4. `pip`[^1]
 
-5. `python-installer`
+5. `setuptools` (again, and without `--no-test`, or just run the tests)
 
-6. `wheel`
+6, `flit`[^2]
 
-7. `pyproject-matadata`
+7. `python-installer`
 
-8. `meson-python`
+8. `wheel`
 
 
 ## Building `meson-python`
@@ -44,20 +42,23 @@ Build all packages first with the `--no-test` option, then, once all packages ar
 
 Build order:
 
-1. Build these in no specific order:
+1. `pretend`
+
+2. `packaging` (with `--no-test`)
+
+3. Build these in no specific order:
   - `cython`
   - `meson`
-  - `pretend`
   - `pyparsing`
   - `pytest`
   - `poetry-core` (linux only)
 
-2. Build these in no specific order:
-  - `packaging`
+4. Build these in no specific order:
+  - `packaging` (or just run the tests)
   - `pyproject-metadata`
   - `pkgconfig` (linux only)
 
-3. `meson-python`
+5. `meson-python`
 
 
 ## Building `hatchling` and `hatch-vcs`
@@ -71,7 +72,7 @@ minor modification to the build order.
     - `calver`
     - `pluggy`
 
-2. `trove-clasifiers`
+2. `trove-classifiers`
 
 3. `hatchling`
 
@@ -108,7 +109,7 @@ Build order:
     - `mypy_extensions`
     - `typing_extensions`
     - `types-setuptools`
-    - `type-psutil`
+    - `types-psutil`
     - `psutil`
     - `pytz`
 
@@ -160,28 +161,26 @@ Other test dependencies:
     - `versioneer`
     - `pytest-forked`
 
+2. `hypothesis` : build with `--no-test`
+
+3. `attrs`
+
+4. `numpy` : test existing package or rebuild
+
 
 ## Building `numpy` and `pandas`
 
-These require many of the above packages.
+These require many of the above packages, especially `numpy` built with `--no-test`.
 
 Build order:
 
-1. `hypothesis` : build with `--no-test`
-
-2. `attrs`
-
-3. `numpy` : build with `--no-test`
-
-4. Build these in no specific order:
+1. Build these in no specific order:
     - `numexpr`
     - `bottleneck`
 
-5. `pandas`
+2. `pandas`
 
-6. `hypothesis` : test existing package or rebuild
-
-7. `numpy` : test existing package or rebuild
+3. `hypothesis` : test existing package or rebuild
 
 
 ## Building Other Packages (1)
@@ -198,4 +197,4 @@ These packages can be built after building `hatchling`
 
 
 [^1]: The current recipe will install files from a wheel file. The package may need to be built again from the source distribution for correctness.
-[^2]: The current recipe will only build the `flit-core` package. The recipe will need to be built again without the `bootstrap`` setting to produce the `flit` package.
+[^2]: The current recipe will only build the `flit-core` package. The recipe will need to be built again without the `bootstrap` setting to produce the `flit` package.
