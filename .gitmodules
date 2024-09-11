@@ -182,3 +182,6 @@
 [submodule "filesystem-spec-feedstock"]
 	path = filesystem-spec-feedstock
 	url = git@github.com:AnacondaRecipes/filesystem-spec-feedstock.git
+[submodule "docutils-feedstock"]
+	path = docutils-feedstock
+	url = git@github.com:AnacondaRecipes/docutils-feedstock.git
