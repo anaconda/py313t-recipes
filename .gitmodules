@@ -182,3 +182,15 @@
 [submodule "filesystem-spec-feedstock"]
 	path = filesystem-spec-feedstock
 	url = git@github.com:AnacondaRecipes/filesystem-spec-feedstock.git
+[submodule "asv-feedstock"]
+	path = asv-feedstock
+	url = git@github.com:AnacondaRecipes/asv-feedstock.git
+[submodule "asv_runner-feedstock"]
+	path = asv_runner-feedstock
+	url = https://github.com/conda-forge/asv_runner-feedstock.git
+[submodule "numba-feedstock"]
+	path = numba-feedstock
+	url = git@github.com:AnacondaRecipes/numba-feedstock.git
+[submodule "llvmlite-feedstock"]
+	path = llvmlite-feedstock
+	url = git@github.com:AnacondaRecipes/llvmlite-feedstock.git
