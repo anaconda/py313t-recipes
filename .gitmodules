@@ -185,3 +185,6 @@
 [submodule "docutils-feedstock"]
 	path = docutils-feedstock
 	url = git@github.com:AnacondaRecipes/docutils-feedstock.git
+[submodule "mpdecimal-feedstock"]
+	path = mpdecimal-feedstock
+	url = git@github.com:AnacondaRecipes/mpdecimal-feedstock.git
