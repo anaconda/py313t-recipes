@@ -188,3 +188,15 @@
 [submodule "mpdecimal-feedstock"]
 	path = mpdecimal-feedstock
 	url = git@github.com:AnacondaRecipes/mpdecimal-feedstock.git
+[submodule "scipy-feedstock"]
+	path = scipy-feedstock
+	url = git@github.com:AnacondaRecipes/scipy-feedstock.git
+[submodule "pythran-feedstock"]
+	path = pythran-feedstock
+	url = git@github.com:AnacondaRecipes/pythran-feedstock.git
+[submodule "pybind11-feedstock"]
+	path = pybind11-feedstock
+	url = git@github.com:AnacondaRecipes/pybind11-feedstock.git
+[submodule "ply-feedstock"]
+	path = ply-feedstock
+	url = git@github.com:AnacondaRecipes/ply-feedstock.git
